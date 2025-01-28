@@ -1,0 +1,5 @@
+*.cpp linguist-language=C++
+sqlite.c linguist-vendored
+sqlite.h linguist-vendored
+picosha2.h linguist-vendored
+
