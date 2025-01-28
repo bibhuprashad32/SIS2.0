@@ -32,6 +32,7 @@ private:
     bool verifyToken(const string& rollno, const string& token);
     void updatePassword(const string& rollno, const string& newPassword);
     string hashPassword(const std::string& password);
+    void popup();
 public:
     MainFrame(const wxString& title);
     void homepage();
