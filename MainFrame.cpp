@@ -6,6 +6,11 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title, 
 	{
 		login();
 	}
+	else if (title == "Homepage")
+	{
+		homepage();
+		popup();
+	}
 	else if (title == "Home")
 	{
 		homepage();
@@ -41,7 +46,8 @@ void MainFrame::login()
 
 	wxButton* loginButton = new wxButton(panel, wxID_ANY, "Login", wxPoint(200, 200), wxSize(100, 30));
 	wxButton* forgetPasswordButton = new wxButton(panel, wxID_ANY, "Forget Password?", wxPoint(200, 250), wxSize(150, 30));
-
+	wxButton* goBackButton = new wxButton(panel, wxID_ANY, "Go Back", wxPoint(200, 250), wxSize(80, 30));
+	
 	wxStaticText* tokenLabel = new wxStaticText(panel, wxID_ANY, "Token:", wxPoint(100, 150), wxSize(70, 30));
 	wxTextCtrl* tokenField = new wxTextCtrl(panel, wxID_ANY, wxEmptyString, wxPoint(180, 150), wxSize(200, 30));
 	wxButton* resetButton = new wxButton(panel, wxID_ANY, "Reset", wxPoint(200, 200), wxSize(100, 30));
@@ -56,6 +62,7 @@ void MainFrame::login()
 	newPasswordLabel->Hide();
 	newPasswordField->Hide();
 	updateButton->Hide();
+	goBackButton->Hide();
 
 	loginButton->Bind(wxEVT_BUTTON, [=](wxCommandEvent&) {
 		if (verifyLogin(rollnoField->GetValue().ToStdString(), passwordField->GetValue().ToStdString()))
@@ -76,6 +83,29 @@ void MainFrame::login()
 		tokenLabel->Show();
 		tokenField->Show();
 		resetButton->Show();
+		forgetPasswordButton->Hide();
+		goBackButton->Show();
+		panel->Layout();
+		});
+
+	goBackButton->Bind(wxEVT_BUTTON, [=](wxCommandEvent&) {
+		passwordLabel->Show();
+		passwordField->Show();
+		loginButton->Show();
+		//tokenLabel->Show();
+		//tokenField->Show();
+		//resetButton->Show();
+		forgetPasswordButton->Show();
+		goBackButton->Hide();
+
+		tokenLabel->Hide();
+		tokenField->Hide();
+		resetButton->Hide();
+		newPasswordLabel->Hide();
+		newPasswordField->Hide();
+		updateButton->Hide();
+		goBackButton->Hide();
+
 		panel->Layout();
 		});
 
@@ -91,6 +121,9 @@ void MainFrame::login()
 			passwordField->Hide();
 			passwordLabel->Hide();
 			loginButton->Hide();
+			tokenField->Clear();
+			goBackButton->Hide();
+			forgetPasswordButton->Show();
 		}
 		else
 		{
@@ -103,6 +136,8 @@ void MainFrame::login()
 			passwordField->Hide();
 			passwordLabel->Hide();
 			loginButton->Hide();
+			goBackButton->Show();
+			forgetPasswordButton->Hide();
 			wxMessageBox("Invalid Credintials", "Invalid", wxOK | wxICON_ERROR);
 		}
 
@@ -120,7 +155,7 @@ void MainFrame::login()
 		passwordField->Show();
 		passwordLabel->Show();
 		loginButton->Show();
-		wxMessageBox("Invalid Credintials", "Invalid", wxOK | wxICON_ERROR);
+		wxMessageBox("Password updated successfully. Kindly Relogin", "Success", wxOK | wxICON_INFORMATION);
 		});
 
 	this->Show(true);
@@ -236,6 +271,41 @@ string MainFrame::hashPassword(const std::string& password)
 	return picosha2::hash256_hex_string(password);
 }
 
+
+void MainFrame::popup()
+{
+	wxDialog dialog(this, wxID_ANY, "Support", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE);
+	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+
+	wxStaticText* supportText = new wxStaticText(&dialog, wxID_ANY, "Developed by Bibhu Prashad Sahu", wxDefaultPosition, wxDefaultSize);
+	wxFont font(13, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+	supportText->SetFont(font);
+	supportText->SetForegroundColour(*wxRED);
+	sizer->Add(supportText, 0, wxALL, 10);
+
+	wxStaticText* messageText = new wxStaticText(&dialog, wxID_ANY, "Please visit my github profile for more: @bibhuprashad32");
+	sizer->Add(messageText, 0, wxALL, 10);
+
+	wxButton* copyButton = new wxButton(&dialog, wxID_ANY, "Copy Link");
+	sizer->Add(copyButton, 0, wxALL | wxALIGN_CENTER, 10);
+
+
+	copyButton->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event) {
+		if (wxTheClipboard->Open()) {
+			wxTheClipboard->SetData(new wxTextDataObject("https://github.com/bibhuprashad32/"));
+			wxTheClipboard->Close();
+		}
+		wxMessageBox("Url copied to clipboard", "Info", wxOK | wxICON_INFORMATION, this);
+		});
+
+
+	wxButton* okButton = new wxButton(&dialog, wxID_OK, "OK");
+	sizer->Add(okButton, 0, wxALL | wxALIGN_CENTER, 10);
+
+	dialog.SetSizerAndFit(sizer);
+	dialog.ShowModal();
+}
+
 void MainFrame::homepage()
 {
 	wxPanel* panel = new wxPanel(this);
@@ -250,40 +320,9 @@ void MainFrame::homepage()
 	wxGauge* gauge = new wxGauge(this, wxID_ANY, 100, wxPoint(55, 220), wxSize(140, 20));
 	gauge->Hide();
 
-	wxDialog dialog(this, wxID_ANY, "Support", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE);
-	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-
-	wxStaticText* supportText = new wxStaticText(&dialog, wxID_ANY, "Developed by Bibhu Prashad Sahu", wxDefaultPosition, wxDefaultSize);
-	//wxFont font(13, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-	supportText->SetFont(font);
-	supportText->SetForegroundColour(*wxRED);
-	sizer->Add(supportText, 0, wxALL, 10);
-
-	wxStaticText* messageText = new wxStaticText(&dialog, wxID_ANY, "Please visit my github profile for more: @bibhuprashad32");
-	sizer->Add(messageText, 0, wxALL, 10);
-
-	wxButton* copyButton = new wxButton(&dialog, wxID_ANY, "Copy Link");
-	sizer->Add(copyButton, 0, wxALL | wxALIGN_CENTER, 10);
-
-	
-	copyButton->Bind(wxEVT_BUTTON, [&](wxCommandEvent& event) {
-		if (wxTheClipboard->Open()) {
-			wxTheClipboard->SetData(new wxTextDataObject("https://github.com/bibhuprashad32/"));
-			wxTheClipboard->Close();
-		}
-		wxMessageBox("Url copied to clipboard", "Info", wxOK | wxICON_INFORMATION, this);
-		});
-	
-
-	wxButton* okButton = new wxButton(&dialog, wxID_OK, "OK");
-	sizer->Add(okButton, 0, wxALL | wxALIGN_CENTER, 10);
-
-	dialog.SetSizerAndFit(sizer);
-
 	Centre();
 
 	Show(true);
-	dialog.ShowModal();
 	loginButton->Bind(wxEVT_BUTTON, [this, gauge](wxCommandEvent& event) { switchMainframe(event, "Login", gauge); }); 
 	signupButton->Bind(wxEVT_BUTTON, [this, gauge](wxCommandEvent& event) { switchMainframe(event, "SignUp", gauge); });
 
